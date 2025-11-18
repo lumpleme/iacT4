@@ -60,7 +60,7 @@ void *ScalarMultLine(void *argss) {
 void *MatrixMultLine(void *argss){
   struct arguments *args = (struct arguments *) argss;
 
-  __m256 result_256, temp_256, arrayA_256, arrayB_256;
+  __m256 result_256, arrayA_256, arrayB_256;
   float *addressA, *addressB, *addressC;
   unsigned long int i = args->i;
   
@@ -78,10 +78,8 @@ void *MatrixMultLine(void *argss){
       
       arrayB_256 = _mm256_load_ps(addressB);
       
-      temp_256 = _mm256_mul_ps(arrayA_256, arrayB_256);
-      
-      result_256 = _mm256_add_ps(result_256, temp_256);
-      
+      result_256 = _mm256_fmadd_ps(arrayA_256, arrayB_256, result_256);
+          
       _mm256_store_ps(addressC, result_256);
     }
   }
