@@ -17,20 +17,6 @@ struct arguments{
 
 // ---------------------------------- THREADS ---------------------------------- //
 
-void *InitLine(void *argss){
-  struct arguments *args = (struct arguments *) argss;
-
-  unsigned long int line = args->i * args->matrixC->width;
-  
-  for (unsigned long int j = 0; j < args->matrixC->width; j++){
-    args->matrixC->rows[line + j] = 0.0;
-  }
-  
-  *(args->flag) = false;
-  free(args);
-  pthread_exit(NULL);
-}
-
 void *ScalarMultLine(void *argss) {
   struct arguments *args = (struct arguments *) argss;
   
@@ -172,58 +158,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct ma
 
   int rc;
   long t = 0;
-  
-  // Initialize matrix C with zeros
-  for (unsigned long int i = 0; i < matrixC->height; i++) {
-    struct arguments *args = malloc(sizeof(struct arguments));
-    if (args == NULL) {
-      printf("Error: unable to allocate memory\n");
-      return 0;
-    }
-    
-    args->matrixC = matrixC;
-    args->i = i;
-    
-    while (true) {
-      if (!thread_flags[t]) {
-        thread_flags[t] = true;
-        args->flag = &thread_flags[t];
-        
-        rc = pthread_create(&threads[t], NULL, InitLine, (void*)args);
-        if (rc){
-          printf("Error: unable to create thread, %d\n", rc);
-          free(args);
-          exit(0);
-        }
-        
-        t = 0;
-        break;
-      }
-      
-      t++;
-      if (t >= n_threads) {
-        t = 0;
-      }
-    }
-  }
 
-  // Wait for all initialization threads to complete
-  for (int i = 0; i < n_threads; i++){
-    if (thread_flags[i]) {
-      rc = pthread_join(threads[i], NULL);
-      if (rc){
-        printf("Error: unable to join, %d\n", rc);
-        exit(0);
-      }
-    }
-  }
-  
-  // Reset flags for the multiplication phase
-  for (int i = 0; i < n_threads; i++){
-    thread_flags[i] = false;
-  }
-  
-  // Matrix multiplication
   for (unsigned long int i = 0; i < matrixA->height; i++){
     struct arguments *args = malloc(sizeof(struct arguments));
     if (args == NULL) {
