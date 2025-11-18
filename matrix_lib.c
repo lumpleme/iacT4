@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define NTHREADS 8
-
 struct arguments{
   struct matrix *matrixA;
   struct matrix *matrixB;
@@ -91,15 +89,15 @@ void *MatrixMultLine(void *argss){
 
 // ---------------------------------- FUNÇÕES ---------------------------------- //
 
-int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
+int scalar_matrix_mult(float scalar_value, struct matrix *matrix, int n_threads){
   if (matrix == NULL){
     return 0;
   }
   
-  pthread_t threads[NTHREADS];
-  bool thread_flags[NTHREADS];
+  pthread_t threads[n_threads];
+  bool thread_flags[n_threads];
   
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     thread_flags[i] = false;
   }
 
@@ -135,13 +133,13 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
       }
       
       t++;
-      if (t >= NTHREADS) {
+      if (t >= n_threads) {
         t = 0;
       }
     }
   }
 
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     if (thread_flags[i]) {
       rc = pthread_join(threads[i], NULL);
       if (rc){
@@ -154,7 +152,7 @@ int scalar_matrix_mult(float scalar_value, struct matrix *matrix){
   return 1;
 }
 
-int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct matrix *matrixC){
+int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct matrix *matrixC, int n_threads){
   if (matrixA == NULL || matrixB == NULL || matrixC == NULL){
     return 0;
   }
@@ -165,10 +163,10 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct ma
     return 0;
   }
 
-  pthread_t threads[NTHREADS];
-  bool thread_flags[NTHREADS];
+  pthread_t threads[n_threads];
+  bool thread_flags[n_threads];
   
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     thread_flags[i] = false;
   }
 
@@ -203,14 +201,14 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct ma
       }
       
       t++;
-      if (t >= NTHREADS) {
+      if (t >= n_threads) {
         t = 0;
       }
     }
   }
 
   // Wait for all initialization threads to complete
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     if (thread_flags[i]) {
       rc = pthread_join(threads[i], NULL);
       if (rc){
@@ -221,7 +219,7 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct ma
   }
   
   // Reset flags for the multiplication phase
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     thread_flags[i] = false;
   }
   
@@ -254,14 +252,14 @@ int matrix_matrix_mult(struct matrix *matrixA, struct matrix *matrixB, struct ma
       }
       
       t++;
-      if (t >= NTHREADS) {
+      if (t >= n_threads) {
         t = 0;
       }
     }
   }
   
   // Wait for all multiplication threads to complete
-  for (int i = 0; i < NTHREADS; i++){
+  for (int i = 0; i < n_threads; i++){
     if (thread_flags[i]) {
       rc = pthread_join(threads[i], NULL);
       if (rc){

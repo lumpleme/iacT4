@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
   // Overall timer início
   gettimeofday(&overall_t1, NULL);
 
-  if (argc != 10) {
-    printf("Usage: %s <scalar_value> <matrix1_height> <matrix1_width> <matrix2_height> <matrix2_width> <matrix1_binfile> <matrix2_binfile> <result1_binfile> <result2_binfile>\n", argv[0]);
+  if (argc != 11) {
+    printf("Usage: %s <scalar_value> <matrix1_height> <matrix1_width> <matrix2_height> <matrix2_width> <n_threads> <matrix1_binfile> <matrix2_binfile> <result1_binfile> <result2_binfile>\n", argv[0]);
     return 0;
   }
 
@@ -47,7 +47,9 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  FILE *file = fopen(argv[6], "rb");
+  int n_threads = atoi(argv[6]);
+
+  FILE *file = fopen(argv[7], "rb");
   if (file == NULL) {
     printf("%s: file open error.\n", argv[0]);
     return 1;
@@ -61,7 +63,7 @@ int main(int argc, char* argv[]) {
 
   fclose(file);
 
-  file = fopen(argv[7], "rb");
+  file = fopen(argv[8], "rb");
   if (file == NULL) {
     printf("%s: file open error.\n", argv[0]);
     return 1;
@@ -92,7 +94,7 @@ int main(int argc, char* argv[]) {
 
   gettimeofday(&start, NULL);
 
-  scalar_matrix_mult(strtof(argv[1], NULL), &A);
+  scalar_matrix_mult(strtof(argv[1], NULL), &A, n_threads);
 
   gettimeofday(&stop, NULL);
 
@@ -101,7 +103,7 @@ int main(int argc, char* argv[]) {
   printf("---------- Scalar x Matrix A ----------\n");
   print_matrix(A);
 
-  file = fopen(argv[8], "wb");
+  file = fopen(argv[9], "wb");
   if (file == NULL) {
     printf("%s: file open error.\n", argv[0]);
     return 1;
@@ -118,7 +120,7 @@ int main(int argc, char* argv[]) {
 
   gettimeofday(&start, NULL);
 
-  matrix_matrix_mult(&A, &B, &C);
+  matrix_matrix_mult(&A, &B, &C, n_threads);
 
   gettimeofday(&stop, NULL);
 
@@ -127,7 +129,7 @@ int main(int argc, char* argv[]) {
   printf("---------- Matrix C ----------\n");
   print_matrix(C);
 
-  file = fopen(argv[9], "wb");
+  file = fopen(argv[10], "wb");
   if (file == NULL) {
     printf("%s: file open error.\n", argv[0]);
     return 1;
