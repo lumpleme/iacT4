@@ -15,3 +15,9 @@ gcc -pthread -mfma -mavx -Wall -o matrix_lib_test matrix_lib_test.c matrix_lib.c
 ./matrix_lib_test 4.0 1024 1024 1024 1024 floats_1024_2.0f.dat floats_1024_5.0f.dat result1.dat result2.dat
 
 ./matrix_lib_test 6.0 2048 2048 2048 2048 floats_2048_3.0f.dat floats_2048_7.0f.dat result3.dat result4.dat
+
+nvcc -o matrix_lib_test matrix_lib_test.cu matrix_lib.cu timer.c
+
+./matrix_lib_test 4.0 1024 1024 1024 1024 256 4096 1024 floats_1024_2.0f.dat floats_1024_5.0f.dat result1.dat result2.dat
+
+./matrix_lib_test 6.0 2048 2048 2048 2048 256 4096 1024 floats_2048_3.0f.dat floats_2048_7.0f.dat result3.dat result4.dat
